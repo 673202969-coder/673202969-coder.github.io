@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>你的心理年龄是多少岁？</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #2b1a4d 0%, #4a2a7a 45%, #8a4fb8 100%);
+    min-height: 100vh; color: #fff; display: flex; justify-content: center;
+    background-attachment: fixed;
+  }
+  #app { width: 100%; max-width: 430px; padding: 0 20px 40px; position: relative; }
+  .page { display: none; animation: fadeIn .4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* 封面 */
+  #page-start { text-align: center; padding-top: 14vh; }
+  .logo-badge { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25);
+    padding: 6px 16px; border-radius: 999px; font-size: 13px; letter-spacing: 2px; margin-bottom: 26px; }
+  h1 { font-size: 34px; line-height: 1.35; margin-bottom: 14px; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .subtitle { font-size: 15px; color: rgba(255,255,255,.82); line-height: 1.7; margin-bottom: 40px; }
+  .btn {
+    display: inline-block; background: linear-gradient(135deg, #ff9a5a, #ff5e8a);
+    color: #fff; font-size: 17px; font-weight: 600; padding: 15px 52px; border-radius: 999px;
+    border: none; cursor: pointer; box-shadow: 0 8px 24px rgba(255,94,138,.4); letter-spacing: 1px;
+  }
+  .btn:active { transform: scale(.96); }
+  .hint { margin-top: 22px; font-size: 12px; color: rgba(255,255,255,.55); }
+
+  /* 答题页 */
+  .progress-wrap { height: 8px; background: rgba(255,255,255,.15); border-radius: 99px; margin: 34px 0 8px; overflow: hidden; }
+  .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ff9a5a, #ff5e8a); border-radius: 99px; transition: width .35s ease; }
+  .progress-text { text-align: right; font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 30px; }
+  .question { font-size: 22px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; min-height: 66px; }
+  .options { display: flex; flex-direction: column; gap: 14px; }
+  .option {
+    background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.22);
+    padding: 16px 18px; border-radius: 16px; font-size: 16px; cursor: pointer;
+    transition: all .18s ease; line-height: 1.45;
+  }
+  .option:active { transform: scale(.97); }
+  .option.picked { background: rgba(255,94,138,.28); border-color: #ff5e8a; }
+
+  /* 结果页 */
+  #page-result { text-align: center; padding-top: 40px; }
+  .result-type { font-size: 15px; letter-spacing: 4px; color: rgba(255,255,255,.75); margin-bottom: 8px; }
+  .result-age { font-size: 76px; font-weight: 800; line-height: 1; margin-bottom: 6px;
+    background: linear-gradient(135deg, #ffd86b, #ff9a5a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .result-age-unit { font-size: 22px; -webkit-text-fill-color: #ffd86b; }
+  .result-title { font-size: 24px; font-weight: 700; margin-bottom: 26px; }
+  .result-card {
+    background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 20px; padding: 24px 20px; text-align: left; margin-bottom: 24px;
+  }
+  .dim-row { display: flex; align-items: center; margin-bottom: 16px; }
+  .dim-label { width: 76px; font-size: 13px; color: rgba(255,255,255,.8); flex-shrink: 0; }
+  .dim-track { flex: 1; height: 8px; background: rgba(255,255,255,.14); border-radius: 99px; overflow: hidden; margin-right: 10px; }
+  .dim-fill { height: 100%; background: linear-gradient(90deg, #ffd86b, #ff9a5a); border-radius: 99px; width: 0; transition: width .8s ease; }
+  .dim-val { width: 30px; font-size: 13px; color: #ffd86b; text-align: right; flex-shrink: 0; }
+  .result-block { margin-bottom: 22px; }
+  .result-block h3 { font-size: 15px; color: #ffd86b; margin-bottom: 8px; letter-spacing: 1px; }
+  .result-block p { font-size: 14.5px; line-height: 1.8; color: rgba(255,255,255,.88); }
+  .btn-secondary {
+    background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.35);
+    color: #fff; font-size: 15px; padding: 13px 34px; border-radius: 999px; cursor: pointer; margin-top: 6px;
+  }
+  .share-tip { margin-top: 26px; font-size: 12.5px; color: rgba(255,255,255,.6); line-height: 1.8; }
+  .save-btn { display: block; width: 100%; background: linear-gradient(135deg, #ff9a5a, #ff5e8a);
+    border: none; color: #fff; font-size: 16px; font-weight: 600; padding: 15px; border-radius: 999px;
+    cursor: pointer; margin-top: 18px; box-shadow: 0 8px 24px rgba(255,94,138,.35); }
+  .save-btn:active { transform: scale(.97); }
+  #savedImg { width: 100%; border-radius: 16px; margin-top: 16px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 封面 -->
+  <section class="page active" id="page-start">
+    <div class="logo-badge">趣味心理测试</div>
+    <h1>你的心理年龄<br>是多少岁？</h1>
+    <p class="subtitle">8 道题 · 测出你灵魂的真实年纪<br>有人 22 岁测出 45 岁，也有人 30 岁测出 17 岁<br>你敢看看结果吗？</p>
+    <button class="btn" onclick="startQuiz()">开始测试</button>
+    <div class="hint">全程约 1 分钟 · 结果可保存分享</div>
+  </section>
+
+  <!-- 答题 -->
+  <section class="page" id="page-quiz">
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">1 / 8</div>
+    <div class="question" id="questionText"></div>
+    <div class="options" id="optionsBox"></div>
+  </section>
+
+  <!-- 结果 -->
+  <section class="page" id="page-result">
+    <div class="result-type" id="rType">RESULT</div>
+    <div class="result-age"><span id="rAge">24</span><span class="result-age-unit">岁</span></div>
+    <div class="result-title" id="rTitle"></div>
+    <div class="result-card">
+      <div class="dim-row"><span class="dim-label">好奇心</span><div class="dim-track"><div class="dim-fill" id="dim1"></div></div><span class="dim-val" id="dim1v"></span></div>
+      <div class="dim-row"><span class="dim-label">情绪稳定</span><div class="dim-track"><div class="dim-fill" id="dim2"></div></div><span class="dim-val" id="dim2v"></span></div>
+      <div class="dim-row"><span class="dim-label">生活热情</span><div class="dim-track"><div class="dim-fill" id="dim3"></div></div><span class="dim-val" id="dim3v"></span></div>
+    </div>
+    <div class="result-card">
+      <div class="result-block"><h3>关于你</h3><p id="rAbout"></p></div>
+      <div class="result-block"><h3>你的隐藏优势</h3><p id="rPower"></p></div>
+      <div class="result-block" style="margin-bottom:0"><h3>给你的悄悄话</h3><p id="rAdvice"></p></div>
+    </div>
+    <button class="save-btn" onclick="saveImage()">保存结果图，发朋友圈</button>
+    <img id="savedImg" alt="结果图">
+    <p class="share-tip">截图保存结果，发给朋友一起测<br>看看谁的心理年龄最"离谱"</p>
+    <button class="btn-secondary" onclick="restart()">再测一次</button>
+  </section>
+
+</div>
+<canvas id="shareCanvas" style="display:none"></canvas>
+
+<script>
+const QUESTIONS = [
+  { q: "周末最想怎么过？",
+    o: ["出门疯玩，家里待不住", "约朋友逛街吃饭", "宅家收拾 + 追剧", "泡杯茶看书晒太阳"] },
+  { q: "突然收到一笔意外之财，你会？",
+    o: ["立刻买心心念念好久的东西", "吃顿好的，剩下的存起来", "全部存起来，慢慢规划", "研究一下怎么理财增值"] },
+  { q: "朋友深夜 emo 找你倾诉，你会？",
+    o: ["拉他打游戏转移注意力", "认真听他讲，陪他吐槽", "帮他分析问题给建议", "泡杯热茶，安静听他说完"] },
+  { q: "面对新事物（新 App、新梗），你的态度？",
+    o: ["必须第一时间玩起来", "朋友都在玩就跟着玩", "有需要才去学", "觉得都是过眼云烟"] },
+  { q: "你的表情包风格是？",
+    o: ["鬼畜沙雕，越离谱越好", "萌宠可爱，软乎乎的", "猫猫狗狗，正常发挥", "基本不用表情包"] },
+  { q: "旅行时你更像哪种人？",
+    o: ["特种兵式打卡，一天八个景点", "网红机位拍照，出片最重要", "做足攻略，按计划执行", "找个地方躺平发呆"] },
+  { q: "对生日、节日仪式感怎么看？",
+    o: ["必须大搞特搞", "嘴上说随便，其实期待惊喜", "看心情，可过可不过", "无所谓，都是普通的一天"] },
+  { q: "有人对你说「你好幼稚啊」，你会？",
+    o: ["谢谢夸奖！", "哈哈哈是吗（其实很开心）", "哪里幼稚了？我很成熟的", "微微一笑，不解释"] }
+];
+
+// 选项按 A/B/C/D 计分，主导类型决定结果
+const RESULTS = {
+  A: {
+    type: "永 远 少 年", age: 17, title: "灵魂 17 岁 · 永远热烈",
+    dims: [96, 58, 95],
+    about: "你的身体在长大，灵魂却赖在少年时代不肯走。对世界永远好奇，快乐来得简单直接，朋友眼里你是那个永远能把场子热起来的人。",
+    power: "感染力是你最强的天赋。你在的地方就不会冷场，别人靠近你会不自觉地放松下来，这种能力很多人一辈子都学不会。",
+    advice: "偶尔也可以允许自己「老成」一次——把重要的事做完再玩，你的热情配上一点点耐心，会爆发出吓人的能量。"
+  },
+  B: {
+    type: "青 春 正 好", age: 24, title: "灵魂 24 岁 · 恰到好处",
+    dims: [82, 74, 86],
+    about: "你的心理年龄停在最舒服的区间：既保留了少年感，又懂得收放。会认真生活，也会认真快乐，是朋友里最让人安心的存在。",
+    power: "平衡感是你的隐藏技能。你总能在「想要」和「应该」之间找到刚刚好的那条线，这种稳，是成年人世界里稀缺的奢侈品。",
+    advice: "你太擅长照顾别人的感受，记得把自己也排进优先级。偶尔任性一次，天不会塌。"
+  },
+  C: {
+    type: "成 熟 大 人", age: 33, title: "灵魂 33 岁 · 稳如磐石",
+    dims: [62, 88, 70],
+    about: "你比同龄人想得深、想得远。遇到事你不慌，先分析再行动，是身边人遇到难题时第一个想到的「军师」。",
+    power: "靠谱是你最值钱的标签。你答应的事一定会做到，交到你手上的事基本不用再操心，这是职场和感情里最硬的通货。",
+    advice: "成熟不等于要把所有事都自己扛。试着把压力说出来，接受别人的帮助，也是成熟的一种。"
+  },
+  D: {
+    type: "超 龄 智 者", age: 45, title: "灵魂 45 岁 · 洞若观火",
+    dims: [40, 96, 52],
+    about: "你的灵魂像一杯泡了很久的茶，早就看透了很多事。不争不抢，不慌不忙，别人眼里的喧嚣在你这里都自动降噪。",
+    power: "通透是你最深的魅力。你不容易被带节奏，总能看到事情的本质，和你聊一次天，很多人会觉得「被点醒了」。",
+    advice: "看得太透的人容易失去参与的乐趣。偶尔装装糊涂、凑凑热闹，人间烟火气，才是灵魂最好的保养品。"
+  }
+};
+
+let answers = [];
+let current = 0;
+
+function startQuiz() {
+  answers = []; current = 0;
+  switchPage("page-quiz");
+  renderQuestion();
+}
+
+function switchPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({ top: 0 });
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById("questionText").textContent = q.q;
+  document.getElementById("progressText").textContent = (current + 1) + " / " + QUESTIONS.length;
+  document.getElementById("progressBar").style.width = ((current + 1) / QUESTIONS.length * 100) + "%";
+  const box = document.getElementById("optionsBox");
+  box.innerHTML = "";
+  const letters = ["A", "B", "C", "D"];
+  q.o.forEach((opt, i) => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.textContent = letters[i] + " · " + opt;
+    div.onclick = () => pick(i, div);
+    box.appendChild(div);
+  });
+}
+
+function pick(choiceIndex, el) {
+  el.classList.add("picked");
+  answers.push(["A", "B", "C", "D"][choiceIndex]);
+  setTimeout(() => {
+    current++;
+    if (current < QUESTIONS.length) renderQuestion();
+    else showResult();
+  }, 220);
+}
+
+function showResult() {
+  const count = { A: 0, B: 0, C: 0, D: 0 };
+  answers.forEach(a => count[a]++);
+  const dominant = Object.keys(count).reduce((x, y) => count[x] >= count[y] ? x : y);
+  const r = RESULTS[dominant];
+  // 按加权计算具体年龄数值（基准值附近浮动）
+  const base = { A: 17, B: 24, C: 33, D: 45 };
+  let age = Math.round(answers.reduce((s, a) => s + base[a], 0) / answers.length);
+  age = Math.max(15, Math.min(52, age));
+  document.getElementById("rType").textContent = r.type;
+  document.getElementById("rAge").textContent = age;
+  document.getElementById("rTitle").textContent = r.title;
+  document.getElementById("rAbout").textContent = r.about;
+  document.getElementById("rPower").textContent = r.power;
+  document.getElementById("rAdvice").textContent = r.advice;
+  ["dim1", "dim2", "dim3"].forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).style.width = r.dims[i] + "%";
+      document.getElementById(id + "v").textContent = r.dims[i];
+    }, 300 + i * 200);
+  });
+  switchPage("page-result");
+}
+
+function restart() { switchPage("page-start"); }
+
+// 生成可保存的分享图
+function saveImage() {
+  const r = RESULTS[Object.keys(RESULTS).find(k => RESULTS[k].type === document.getElementById("rType").textContent)];
+  const age = document.getElementById("rAge").textContent;
+  const W = 750, H = 1250;
+  const c = document.getElementById("shareCanvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d");
+
+  // 渐变背景
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, "#2b1a4d"); bg.addColorStop(0.5, "#4a2a7a"); bg.addColorStop(1, "#8a4fb8");
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  // 装饰圆
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(W - 60, 120, 160, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(40, H - 160, 200, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // 顶部标签
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "26px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("趣味心理测试 · 我的心理年龄", W / 2, 110);
+
+  // 类型
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.font = "30px sans-serif";
+  ctx.fillText(r.type, W / 2, 200);
+
+  // 年龄大字
+  const grad = ctx.createLinearGradient(W / 2 - 150, 0, W / 2 + 150, 0);
+  grad.addColorStop(0, "#ffd86b"); grad.addColorStop(1, "#ff9a5a");
+  ctx.fillStyle = grad;
+  ctx.font = "bold 160px sans-serif";
+  ctx.fillText(age, W / 2, 380);
+  ctx.fillStyle = "#ffd86b";
+  ctx.font = "40px sans-serif";
+  ctx.fillText("岁", W / 2 + 130, 380);
+
+  // 标题
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 38px sans-serif";
+  ctx.fillText(r.title, W / 2, 470);
+
+  // 分隔线
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.fillRect(W / 2 - 250, 510, 500, 2);
+
+  // 正文（自动换行）
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.font = "27px sans-serif";
+  const wrap = (text, x, y, maxW, lineH) => {
+    let line = "", yy = y;
+    for (const ch of text) {
+      if (ctx.measureText(line + ch).width > maxW) { ctx.fillText(line, x, yy); line = ch; yy += lineH; }
+      else line += ch;
+    }
+    ctx.fillText(line, x, yy);
+    return yy + lineH;
+  };
+  let y = 580;
+  y = wrap("关于你｜" + r.about, W / 2, y, 620, 46) + 40;
+  y = wrap("隐藏优势｜" + r.power, W / 2, y, 620, 46) + 40;
+  y = wrap("给你的悄悄话｜" + r.advice, W / 2, y, 620, 46) + 60;
+
+  // 底部引导
+  ctx.fillStyle = "#ffd86b";
+  ctx.font = "bold 32px sans-serif";
+  ctx.fillText("你的心理年龄是多少岁？", W / 2, H - 120);
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.font = "24px sans-serif";
+  ctx.fillText("长按识别，和朋友一起测", W / 2, H - 70);
+
+  const img = document.getElementById("savedImg");
+  img.src = c.toDataURL("image/png");
+  img.style.display = "block";
+  img.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+</script>
+</body>
+</html>

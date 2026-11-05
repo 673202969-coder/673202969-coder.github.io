@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>测测你的恋爱人格是哪种？</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #4a1530 0%, #8c2155 50%, #d6336c 100%);
+    min-height: 100vh; color: #fff; display: flex; justify-content: center;
+    background-attachment: fixed;
+  }
+  #app { width: 100%; max-width: 430px; padding: 0 20px 40px; position: relative; }
+  .page { display: none; animation: fadeIn .4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  #page-start { text-align: center; padding-top: 14vh; }
+  .logo-badge { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25);
+    padding: 6px 16px; border-radius: 999px; font-size: 13px; letter-spacing: 2px; margin-bottom: 26px; }
+  h1 { font-size: 34px; line-height: 1.35; margin-bottom: 14px; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .subtitle { font-size: 15px; color: rgba(255,255,255,.82); line-height: 1.7; margin-bottom: 40px; }
+  .btn {
+    display: inline-block; background: linear-gradient(135deg, #ffa8c5, #f06595);
+    color: #4a1530; font-size: 17px; font-weight: 700; padding: 15px 52px; border-radius: 999px;
+    border: none; cursor: pointer; box-shadow: 0 8px 24px rgba(240,101,149,.4); letter-spacing: 1px;
+  }
+  .btn:active { transform: scale(.96); }
+  .hint { margin-top: 22px; font-size: 12px; color: rgba(255,255,255,.55); }
+  .progress-wrap { height: 8px; background: rgba(255,255,255,.15); border-radius: 99px; margin: 34px 0 8px; overflow: hidden; }
+  .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #ffa8c5, #f06595); border-radius: 99px; transition: width .35s ease; }
+  .progress-text { text-align: right; font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 30px; }
+  .question { font-size: 22px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; min-height: 66px; }
+  .options { display: flex; flex-direction: column; gap: 14px; }
+  .option {
+    background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.22);
+    padding: 16px 18px; border-radius: 16px; font-size: 16px; cursor: pointer;
+    transition: all .18s ease; line-height: 1.45;
+  }
+  .option:active { transform: scale(.97); }
+  .option.picked { background: rgba(240,101,149,.35); border-color: #ffa8c5; }
+  #page-result { text-align: center; padding-top: 40px; }
+  .result-type { font-size: 15px; letter-spacing: 4px; color: rgba(255,255,255,.75); margin-bottom: 8px; }
+  .result-emoji { font-size: 84px; line-height: 1; margin-bottom: 10px; }
+  .result-title { font-size: 24px; font-weight: 700; margin-bottom: 26px; }
+  .result-card {
+    background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 20px; padding: 24px 20px; text-align: left; margin-bottom: 24px;
+  }
+  .dim-row { display: flex; align-items: center; margin-bottom: 16px; }
+  .dim-label { width: 76px; font-size: 13px; color: rgba(255,255,255,.8); flex-shrink: 0; }
+  .dim-track { flex: 1; height: 8px; background: rgba(255,255,255,.14); border-radius: 99px; overflow: hidden; margin-right: 10px; }
+  .dim-fill { height: 100%; background: linear-gradient(90deg, #ffa8c5, #f06595); border-radius: 99px; width: 0; transition: width .8s ease; }
+  .dim-val { width: 30px; font-size: 13px; color: #ffa8c5; text-align: right; flex-shrink: 0; }
+  .result-block { margin-bottom: 22px; }
+  .result-block h3 { font-size: 15px; color: #ffa8c5; margin-bottom: 8px; letter-spacing: 1px; }
+  .result-block p { font-size: 14.5px; line-height: 1.8; color: rgba(255,255,255,.88); }
+  .btn-secondary {
+    background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.35);
+    color: #fff; font-size: 15px; padding: 13px 34px; border-radius: 999px; cursor: pointer; margin-top: 6px;
+  }
+  .share-tip { margin-top: 26px; font-size: 12.5px; color: rgba(255,255,255,.6); line-height: 1.8; }
+  .save-btn { display: block; width: 100%; background: linear-gradient(135deg, #ffa8c5, #f06595);
+    border: none; color: #4a1530; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 999px;
+    cursor: pointer; margin-top: 18px; box-shadow: 0 8px 24px rgba(240,101,149,.35); }
+  .save-btn:active { transform: scale(.97); }
+  #savedImg { width: 100%; border-radius: 16px; margin-top: 16px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <section class="page active" id="page-start">
+    <div class="logo-badge">趣味心理测试</div>
+    <h1>你的恋爱人格<br>是哪种？</h1>
+    <p class="subtitle">8 道题 · 看穿你在爱情里的样子<br>有人是温柔守护者，有人是理性军师<br>发给暧昧对象一起测，结果有惊喜</p>
+    <button class="btn" onclick="startQuiz()">开始测试</button>
+    <div class="hint">全程约 1 分钟 · 结果可保存分享</div>
+  </section>
+
+  <section class="page" id="page-quiz">
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">1 / 8</div>
+    <div class="question" id="questionText"></div>
+    <div class="options" id="optionsBox"></div>
+  </section>
+
+  <section class="page" id="page-result">
+    <div class="result-type" id="rType">RESULT</div>
+    <div class="result-emoji" id="rEmoji"></div>
+    <div class="result-title" id="rTitle"></div>
+    <div class="result-card">
+      <div class="dim-row"><span class="dim-label">主动程度</span><div class="dim-track"><div class="dim-fill" id="dim1"></div></div><span class="dim-val" id="dim1v"></span></div>
+      <div class="dim-row"><span class="dim-label">浪漫指数</span><div class="dim-track"><div class="dim-fill" id="dim2"></div></div><span class="dim-val" id="dim2v"></span></div>
+      <div class="dim-row"><span class="dim-label">安全感需求</span><div class="dim-track"><div class="dim-fill" id="dim3"></div></div><span class="dim-val" id="dim3v"></span></div>
+    </div>
+    <div class="result-card">
+      <div class="result-block"><h3>恋爱中的你</h3><p id="rAbout"></p></div>
+      <div class="result-block"><h3>你适合的另一半</h3><p id="rPower"></p></div>
+      <div class="result-block" style="margin-bottom:0"><h3>恋爱忠告</h3><p id="rAdvice"></p></div>
+    </div>
+    <button class="save-btn" onclick="saveImage()">保存结果图，发朋友圈</button>
+    <img id="savedImg" alt="结果图">
+    <p class="share-tip">截图保存结果，发给那个 TA 一起测<br>说不定你们的答案天生一对</p>
+    <button class="btn-secondary" onclick="restart()">再测一次</button>
+  </section>
+
+</div>
+<canvas id="shareCanvas" style="display:none"></canvas>
+
+<script>
+const QUESTIONS = [
+  { q: "喜欢上一个人，你会？",
+    o: ["主动出击，喜欢就追", "默默对 TA 好，等 TA 发现", "制造偶遇和机会，步步为营", "先观察三个月，确定值得再说"] },
+  { q: "约会迟到的 TA 说「睡过头了」，你？",
+    o: ["生气但嘴上说没事", "立刻心疼：那再睡会儿吧", "半开玩笑：下次换我迟到", "平静问：所以是几点睡的？"] },
+  { q: "你理想中的爱情更像？",
+    o: ["偶像剧，轰轰烈烈", "纪录片，细水长流", "悬疑剧，互相试探推拉", "合作片，势均力敌共同成长"] },
+  { q: "吵架时你通常？",
+    o: ["当下必须说清楚", "先冷静，过会儿再谈", "嘴硬心软，等对方来哄", "写小作文，逻辑要闭环"] },
+  { q: "纪念日你会？",
+    o: ["精心准备惊喜，仪式感拉满", "亲手做一顿饭，踏实又温暖", "提前一周就开始琢磨礼物", "设了提醒，但可能还是会忘"] },
+  { q: "对方很久没回消息，你？",
+    o: ["连环追问：在干嘛？", "自己脑补一部大戏", "发个可爱表情包试探", "继续忙自己的，回了再说"] },
+  { q: "你更在意另一半的？",
+    o: ["颜值和心动感", "人品和顾家", "幽默和情绪价值", "上进心和能力"] },
+  { q: "对「爱要大声说出来」这句话？",
+    o: ["完全同意，爱就要表达", "行动比语言更有力", "说出来就不浪漫了", "可以，但要说到点上"] }
+];
+
+const RESULTS = {
+  A: {
+    type: "热 烈 追 光 者", emoji: "🔥", title: "热烈追光者 · 爱要轰轰烈烈",
+    dims: [95, 92, 58],
+    about: "你爱一个人就是全情投入，藏不住也憋不住。你的喜欢像太阳，明亮、直接、让人无法忽视。",
+    power: "适合你的另一半是「温柔守护者」：TA 的稳定能接住你的热烈，你的热烈能点燃 TA 的生活，天生互补。",
+    advice: "追光者也要记得回头看看自己。爱得再满，也要留 30% 给自己，那才是你持续发光的燃料。"
+  },
+  B: {
+    type: "温 柔 守 护 者", emoji: "🍀", title: "温柔守护者 · 爱在细节里",
+    dims: [55, 78, 88],
+    about: "你不擅长说漂亮话，但会把爱藏在每一件小事里：记住 TA 的口味、提前备好雨伞、深夜的一碗热汤。",
+    power: "适合你的另一半是「热烈追光者」：TA 负责把爱说出口，你负责把爱做出来，一个点火一个添柴，刚刚好。",
+    advice: "默默付出的人最容易被当成理所当然。学会表达需求，你的温柔值得被看见，而不只是被习惯。"
+  },
+  C: {
+    type: "浪 漫 策 划 师", emoji: "✨", title: "浪漫策划师 · 把恋爱过成电影",
+    dims: [70, 96, 62],
+    about: "你是天生的氛围大师：惊喜、仪式感、小心思，信手拈来。和你恋爱像住进一部永远有彩蛋的电影。",
+    power: "适合你的另一半是「理性军师」：TA 务实，你浪漫；TA 负责生活落地，你负责生活发光。",
+    advice: "偶尔的浪漫是惊喜，过度的安排感会变成压力。放松一点，最动人的瞬间往往是不按剧本来的。"
+  },
+  D: {
+    type: "理 性 军 师", emoji: "🧠", title: "理性军师 · 先动脑后动心",
+    dims: [48, 52, 45],
+    about: "你在爱情里保持清醒：不轻易上头，不盲目付出。有人觉得你冷淡，其实你只是把心动想清楚了才交付。",
+    power: "适合你的另一半是「浪漫策划师」：TA 带你体验不理智的快乐，你给 TA 兜住现实的底。",
+    advice: "爱情不是一道需要解出最优解的题。有些时候，允许自己「不讲道理」地心动一次，答案会自己出现。"
+  }
+};
+
+let answers = [];
+let current = 0;
+
+function startQuiz() {
+  answers = []; current = 0;
+  switchPage("page-quiz");
+  renderQuestion();
+}
+
+function switchPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({ top: 0 });
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById("questionText").textContent = q.q;
+  document.getElementById("progressText").textContent = (current + 1) + " / " + QUESTIONS.length;
+  document.getElementById("progressBar").style.width = ((current + 1) / QUESTIONS.length * 100) + "%";
+  const box = document.getElementById("optionsBox");
+  box.innerHTML = "";
+  const letters = ["A", "B", "C", "D"];
+  q.o.forEach((opt, i) => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.textContent = letters[i] + " · " + opt;
+    div.onclick = () => pick(i, div);
+    box.appendChild(div);
+  });
+}
+
+function pick(choiceIndex, el) {
+  el.classList.add("picked");
+  answers.push(["A", "B", "C", "D"][choiceIndex]);
+  setTimeout(() => {
+    current++;
+    if (current < QUESTIONS.length) renderQuestion();
+    else showResult();
+  }, 220);
+}
+
+function showResult() {
+  const count = { A: 0, B: 0, C: 0, D: 0 };
+  answers.forEach(a => count[a]++);
+  const dominant = Object.keys(count).reduce((x, y) => count[x] >= count[y] ? x : y);
+  const r = RESULTS[dominant];
+  document.getElementById("rType").textContent = r.type;
+  document.getElementById("rEmoji").textContent = r.emoji;
+  document.getElementById("rTitle").textContent = r.title;
+  document.getElementById("rAbout").textContent = r.about;
+  document.getElementById("rPower").textContent = r.power;
+  document.getElementById("rAdvice").textContent = r.advice;
+  ["dim1", "dim2", "dim3"].forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).style.width = r.dims[i] + "%";
+      document.getElementById(id + "v").textContent = r.dims[i];
+    }, 300 + i * 200);
+  });
+  switchPage("page-result");
+}
+
+function restart() { switchPage("page-start"); }
+
+function saveImage() {
+  const r = RESULTS[Object.keys(RESULTS).find(k => RESULTS[k].type === document.getElementById("rType").textContent)];
+  const W = 750, H = 1250;
+  const c = document.getElementById("shareCanvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d");
+
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, "#4a1530"); bg.addColorStop(0.5, "#8c2155"); bg.addColorStop(1, "#d6336c");
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(W - 60, 120, 160, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(40, H - 160, 200, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "26px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("趣味心理测试 · 我的恋爱人格", W / 2, 110);
+
+  ctx.font = "170px sans-serif";
+  ctx.fillText(r.emoji, W / 2, 320);
+
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.font = "30px sans-serif";
+  ctx.fillText(r.type, W / 2, 410);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 38px sans-serif";
+  ctx.fillText(r.title, W / 2, 490);
+
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.fillRect(W / 2 - 250, 530, 500, 2);
+
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.font = "27px sans-serif";
+  const wrap = (text, x, y, maxW, lineH) => {
+    let line = "", yy = y;
+    for (const ch of text) {
+      if (ctx.measureText(line + ch).width > maxW) { ctx.fillText(line, x, yy); line = ch; yy += lineH; }
+      else line += ch;
+    }
+    ctx.fillText(line, x, yy);
+    return yy + lineH;
+  };
+  let y = 600;
+  y = wrap("恋爱中的你｜" + r.about, W / 2, y, 620, 46) + 40;
+  y = wrap("适合的另一半｜" + r.power, W / 2, y, 620, 46) + 40;
+  y = wrap("恋爱忠告｜" + r.advice, W / 2, y, 620, 46) + 60;
+
+  ctx.fillStyle = "#ffa8c5";
+  ctx.font = "bold 32px sans-serif";
+  ctx.fillText("你的恋爱人格是哪种？", W / 2, H - 120);
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.font = "24px sans-serif";
+  ctx.fillText("长按识别，和朋友一起测", W / 2, H - 70);
+
+  const img = document.getElementById("savedImg");
+  img.src = c.toDataURL("image/png");
+  img.style.display = "block";
+  img.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+</script>
+</body>
+</html>

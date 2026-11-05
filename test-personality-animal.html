@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>测测你内心住着什么动物？</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #0d2b1d 0%, #1d5c3a 50%, #3a9a5f 100%);
+    min-height: 100vh; color: #fff; display: flex; justify-content: center;
+    background-attachment: fixed;
+  }
+  #app { width: 100%; max-width: 430px; padding: 0 20px 40px; position: relative; }
+  .page { display: none; animation: fadeIn .4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  #page-start { text-align: center; padding-top: 14vh; }
+  .logo-badge { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25);
+    padding: 6px 16px; border-radius: 999px; font-size: 13px; letter-spacing: 2px; margin-bottom: 26px; }
+  h1 { font-size: 34px; line-height: 1.35; margin-bottom: 14px; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .subtitle { font-size: 15px; color: rgba(255,255,255,.82); line-height: 1.7; margin-bottom: 40px; }
+  .btn {
+    display: inline-block; background: linear-gradient(135deg, #8ce99a, #37b24d);
+    color: #0d2b1d; font-size: 17px; font-weight: 700; padding: 15px 52px; border-radius: 999px;
+    border: none; cursor: pointer; box-shadow: 0 8px 24px rgba(55,178,77,.4); letter-spacing: 1px;
+  }
+  .btn:active { transform: scale(.96); }
+  .hint { margin-top: 22px; font-size: 12px; color: rgba(255,255,255,.55); }
+  .progress-wrap { height: 8px; background: rgba(255,255,255,.15); border-radius: 99px; margin: 34px 0 8px; overflow: hidden; }
+  .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #8ce99a, #37b24d); border-radius: 99px; transition: width .35s ease; }
+  .progress-text { text-align: right; font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 30px; }
+  .question { font-size: 22px; font-weight: 600; line-height: 1.5; margin-bottom: 32px; min-height: 66px; }
+  .options { display: flex; flex-direction: column; gap: 14px; }
+  .option {
+    background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.22);
+    padding: 16px 18px; border-radius: 16px; font-size: 16px; cursor: pointer;
+    transition: all .18s ease; line-height: 1.45;
+  }
+  .option:active { transform: scale(.97); }
+  .option.picked { background: rgba(55,178,77,.35); border-color: #8ce99a; }
+  #page-result { text-align: center; padding-top: 40px; }
+  .result-type { font-size: 15px; letter-spacing: 4px; color: rgba(255,255,255,.75); margin-bottom: 8px; }
+  .result-emoji { font-size: 84px; line-height: 1; margin-bottom: 10px; }
+  .result-title { font-size: 24px; font-weight: 700; margin-bottom: 26px; }
+  .result-card {
+    background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.2);
+    border-radius: 20px; padding: 24px 20px; text-align: left; margin-bottom: 24px;
+  }
+  .dim-row { display: flex; align-items: center; margin-bottom: 16px; }
+  .dim-label { width: 76px; font-size: 13px; color: rgba(255,255,255,.8); flex-shrink: 0; }
+  .dim-track { flex: 1; height: 8px; background: rgba(255,255,255,.14); border-radius: 99px; overflow: hidden; margin-right: 10px; }
+  .dim-fill { height: 100%; background: linear-gradient(90deg, #8ce99a, #37b24d); border-radius: 99px; width: 0; transition: width .8s ease; }
+  .dim-val { width: 30px; font-size: 13px; color: #8ce99a; text-align: right; flex-shrink: 0; }
+  .result-block { margin-bottom: 22px; }
+  .result-block h3 { font-size: 15px; color: #8ce99a; margin-bottom: 8px; letter-spacing: 1px; }
+  .result-block p { font-size: 14.5px; line-height: 1.8; color: rgba(255,255,255,.88); }
+  .btn-secondary {
+    background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.35);
+    color: #fff; font-size: 15px; padding: 13px 34px; border-radius: 999px; cursor: pointer; margin-top: 6px;
+  }
+  .share-tip { margin-top: 26px; font-size: 12.5px; color: rgba(255,255,255,.6); line-height: 1.8; }
+  .save-btn { display: block; width: 100%; background: linear-gradient(135deg, #8ce99a, #37b24d);
+    border: none; color: #0d2b1d; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 999px;
+    cursor: pointer; margin-top: 18px; box-shadow: 0 8px 24px rgba(55,178,77,.35); }
+  .save-btn:active { transform: scale(.97); }
+  #savedImg { width: 100%; border-radius: 16px; margin-top: 16px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <section class="page active" id="page-start">
+    <div class="logo-badge">趣味心理测试</div>
+    <h1>你内心住着<br>什么动物？</h1>
+    <p class="subtitle">8 道题 · 唤醒你的灵魂本体<br>有人是孤傲的狼，有人是佛系的熊猫<br>测完会被朋友狂点头的那种准</p>
+    <button class="btn" onclick="startQuiz()">开始测试</button>
+    <div class="hint">全程约 1 分钟 · 结果可保存分享</div>
+  </section>
+
+  <section class="page" id="page-quiz">
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">1 / 8</div>
+    <div class="question" id="questionText"></div>
+    <div class="options" id="optionsBox"></div>
+  </section>
+
+  <section class="page" id="page-result">
+    <div class="result-type" id="rType">RESULT</div>
+    <div class="result-emoji" id="rEmoji"></div>
+    <div class="result-title" id="rTitle"></div>
+    <div class="result-card">
+      <div class="dim-row"><span class="dim-label">社交能量</span><div class="dim-track"><div class="dim-fill" id="dim1"></div></div><span class="dim-val" id="dim1v"></span></div>
+      <div class="dim-row"><span class="dim-label">野心指数</span><div class="dim-track"><div class="dim-fill" id="dim2"></div></div><span class="dim-val" id="dim2v"></span></div>
+      <div class="dim-row"><span class="dim-label">温柔程度</span><div class="dim-track"><div class="dim-fill" id="dim3"></div></div><span class="dim-val" id="dim3v"></span></div>
+    </div>
+    <div class="result-card">
+      <div class="result-block"><h3>你的动物属性</h3><p id="rAbout"></p></div>
+      <div class="result-block"><h3>别人眼中的你</h3><p id="rPower"></p></div>
+      <div class="result-block" style="margin-bottom:0"><h3>灵魂伙伴建议</h3><p id="rAdvice"></p></div>
+    </div>
+    <button class="save-btn" onclick="saveImage()">保存结果图，发朋友圈</button>
+    <img id="savedImg" alt="结果图">
+    <p class="share-tip">截图保存结果，发给朋友一起测<br>看看你们是不是同类</p>
+    <button class="btn-secondary" onclick="restart()">再测一次</button>
+  </section>
+
+</div>
+<canvas id="shareCanvas" style="display:none"></canvas>
+
+<script>
+const QUESTIONS = [
+  { q: "周五晚上，你更想去哪？",
+    o: ["组局嗨皮，人越多越好", "一个人的电影/游戏夜", "和两三个好朋友小聚", "宅家撸猫撸狗，岁月静好"] },
+  { q: "团队项目里你通常是？",
+    o: ["带头冲锋的那个人", "默默把事做漂亮的人", "活跃气氛的粘合剂", "稳住后方的定心丸"] },
+  { q: "遇到不公平的事，你会？",
+    o: ["直接开怼，寸步不让", "记在心里，找机会还回去", "先讲道理，不行再刚", "算了算了，生气伤身体"] },
+  { q: "朋友对你的第一印象？",
+    o: ["气场很强，有点不敢接近", "高冷，熟了才知道是话痨", "自来熟，一下就聊开了", "软乎乎的，想捏"] },
+  { q: "你的社交电量是？",
+    o: ["人越多我越兴奋", "见完人需要独处充电", "看对象，对的人聊通宵", "社交一分钟，躺平两小时"] },
+  { q: "难过的时候你会？",
+    o: ["自己扛，不让别人看见", "找最信任的人倒豆子", "化悲愤为干饭/搞钱", "躲进被窝看治愈视频"] },
+  { q: "你的人生关键词？",
+    o: ["赢", "自由", "爱", "稳"] },
+  { q: "如果变成动物，你希望自己是？",
+    o: ["食物链顶端的那种", "神出鬼没的那种", "人见人爱的那种", "无忧无虑的那种"] }
+];
+
+const RESULTS = {
+  A: {
+    type: "孤 狼", emoji: "🐺", title: "你内心住着一匹狼",
+    dims: [62, 96, 48],
+    about: "你是天生的猎手：目标明确，行动力强，认准的事九头牛都拉不回。独来独往不是孤独，是你在蓄力。",
+    power: "别人眼里的你气场全开，好像永远不需要帮忙。其实你只是习惯了自己搞定一切——而且你真的搞得定。",
+    advice: "你的灵魂伙伴是海豚型朋友：他们负责把你拉进人群，你负责带他们赢。狼也需要偶尔晒晒太阳。"
+  },
+  B: {
+    type: "黑 猫", emoji: "🐈‍⬛", title: "你内心住着一只黑猫",
+    dims: [45, 70, 60],
+    about: "你神秘又独立，情绪写在脸上但心思藏得很深。边界感极强，想靠近你，得先通过你的「无声考核」。",
+    power: "别人眼里的你高冷又迷人，越了解越上瘾。你对自己和世界都有清醒的判断，从不随波逐流。",
+    advice: "你的灵魂伙伴是熊猫型朋友：他们软乎乎的包容力，能让你这只猫卸下防备，露出肚皮。"
+  },
+  C: {
+    type: "海 豚", emoji: "🐬", title: "你内心住着一只海豚",
+    dims: [94, 58, 88],
+    about: "你是人群里的小太阳：乐观、机灵、自来熟，天生的气氛组组长。你的快乐会传染，朋友难过时第一个想到的就是你。",
+    power: "别人眼里的你永远在笑，好像没有烦恼。其实你的情绪雷达超级灵敏，只是选择把温柔留给别人。",
+    advice: "你的灵魂伙伴是狼型朋友：他们帮你挡住世界的恶意，你帮他们打开世界的善意。但记住，你也有权说「我不开心」。"
+  },
+  D: {
+    type: "熊 猫", emoji: "🐼", title: "你内心住着一只熊猫",
+    dims: [50, 40, 95],
+    about: "你佛系但不废：心里门儿清，只是选择不较劲。知足常乐是你的人生哲学，天塌下来你也能先睡一觉再说。",
+    power: "别人眼里的你是「情绪稳定」的代名词，和你待在一起就像被按了静音键，烦恼自动消音。",
+    advice: "你的灵魂伙伴是海豚型朋友：他们会拽着你去看更大的世界。偶尔离开舒适区，外面的竹子也很香。"
+  }
+};
+
+let answers = [];
+let current = 0;
+
+function startQuiz() {
+  answers = []; current = 0;
+  switchPage("page-quiz");
+  renderQuestion();
+}
+
+function switchPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({ top: 0 });
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById("questionText").textContent = q.q;
+  document.getElementById("progressText").textContent = (current + 1) + " / " + QUESTIONS.length;
+  document.getElementById("progressBar").style.width = ((current + 1) / QUESTIONS.length * 100) + "%";
+  const box = document.getElementById("optionsBox");
+  box.innerHTML = "";
+  const letters = ["A", "B", "C", "D"];
+  q.o.forEach((opt, i) => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.textContent = letters[i] + " · " + opt;
+    div.onclick = () => pick(i, div);
+    box.appendChild(div);
+  });
+}
+
+function pick(choiceIndex, el) {
+  el.classList.add("picked");
+  answers.push(["A", "B", "C", "D"][choiceIndex]);
+  setTimeout(() => {
+    current++;
+    if (current < QUESTIONS.length) renderQuestion();
+    else showResult();
+  }, 220);
+}
+
+function showResult() {
+  const count = { A: 0, B: 0, C: 0, D: 0 };
+  answers.forEach(a => count[a]++);
+  const dominant = Object.keys(count).reduce((x, y) => count[x] >= count[y] ? x : y);
+  const r = RESULTS[dominant];
+  document.getElementById("rType").textContent = r.type;
+  document.getElementById("rEmoji").textContent = r.emoji;
+  document.getElementById("rTitle").textContent = r.title;
+  document.getElementById("rAbout").textContent = r.about;
+  document.getElementById("rPower").textContent = r.power;
+  document.getElementById("rAdvice").textContent = r.advice;
+  ["dim1", "dim2", "dim3"].forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).style.width = r.dims[i] + "%";
+      document.getElementById(id + "v").textContent = r.dims[i];
+    }, 300 + i * 200);
+  });
+  switchPage("page-result");
+}
+
+function restart() { switchPage("page-start"); }
+
+function saveImage() {
+  const r = RESULTS[Object.keys(RESULTS).find(k => RESULTS[k].type === document.getElementById("rType").textContent)];
+  const W = 750, H = 1250;
+  const c = document.getElementById("shareCanvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d");
+
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, "#0d2b1d"); bg.addColorStop(0.5, "#1d5c3a"); bg.addColorStop(1, "#3a9a5f");
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(W - 60, 120, 160, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(40, H - 160, 200, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "rgba(255,255,255,0.85)";
+  ctx.font = "26px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("趣味心理测试 · 我的灵魂动物", W / 2, 110);
+
+  ctx.font = "170px sans-serif";
+  ctx.fillText(r.emoji, W / 2, 320);
+
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.font = "30px sans-serif";
+  ctx.fillText(r.type, W / 2, 410);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 38px sans-serif";
+  ctx.fillText(r.title, W / 2, 490);
+
+  ctx.fillStyle = "rgba(255,255,255,0.3)";
+  ctx.fillRect(W / 2 - 250, 530, 500, 2);
+
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.font = "27px sans-serif";
+  const wrap = (text, x, y, maxW, lineH) => {
+    let line = "", yy = y;
+    for (const ch of text) {
+      if (ctx.measureText(line + ch).width > maxW) { ctx.fillText(line, x, yy); line = ch; yy += lineH; }
+      else line += ch;
+    }
+    ctx.fillText(line, x, yy);
+    return yy + lineH;
+  };
+  let y = 600;
+  y = wrap("动物属性｜" + r.about, W / 2, y, 620, 46) + 40;
+  y = wrap("别人眼中的你｜" + r.power, W / 2, y, 620, 46) + 40;
+  y = wrap("灵魂伙伴｜" + r.advice, W / 2, y, 620, 46) + 60;
+
+  ctx.fillStyle = "#8ce99a";
+  ctx.font = "bold 32px sans-serif";
+  ctx.fillText("你内心住着什么动物？", W / 2, H - 120);
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.font = "24px sans-serif";
+  ctx.fillText("长按识别，和朋友一起测", W / 2, H - 70);
+
+  const img = document.getElementById("savedImg");
+  img.src = c.toDataURL("image/png");
+  img.style.display = "block";
+  img.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+</script>
+</body>
+</html>
